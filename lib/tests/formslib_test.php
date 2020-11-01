@@ -643,6 +643,28 @@ class core_formslib_testcase extends advanced_testcase {
         self::assertTrue($form->is_submitted());
         self::assertSame('Mocked Value', $form->get_data()->title);
     }
+
+    /**
+     * MDL-69496 - Tests behaviour of elements inside a frozen group.
+     */
+    public function test_frozen_group() {
+        $this->resetAfterTest(true);
+        
+        $submittedvalues = array(
+            'text' => 'This is text',
+            'checkbox' => '1',
+        );
+        
+        formslib_test_frozen_group_ungrouped_form::mock_submit($submittedvalues);
+        $ungroupedform = new formslib_test_frozen_group_ungrouped_form();
+        $ungroupeddata = $ungroupedform->get_submitted_data();
+        
+        formslib_test_frozen_group_grouped_form::mock_submit($submittedvalues);
+        $groupedform = new formslib_test_frozen_group_grouped_form();
+        $groupeddata = $groupedform->get_submitted_data();
+        
+        $this->assertSame((array) $ungroupeddata, (array) $groupeddata);
+    }
 }
 
 
@@ -996,5 +1018,49 @@ class formslib_multiple_validation_form extends moodleform {
             $errors['somenumber'] = 'The number cannot be negative.';
         }
         return $errors;
+    }
+}
+
+/**
+ * Used to test the behaviour of frozen elements in a group vs not in a group. See MDL-69496.
+ */
+class formslib_test_frozen_group_ungrouped_form extends moodleform {
+    public function get_form() {
+        return $this->_form;
+    }
+    /**
+     * Simple definition, one text field (which is not persistant) and one checkbox (which is).
+     */
+    public function definition() {
+        $mform = $this->_form;
+        $mform->addElement('text', 'text');
+        $mform->addElement('advcheckbox', 'checkbox');
+        
+        $mform->setType('text', PARAM_TEXT);
+        $mform->setType('checkbox', PARAM_BOOL);
+        
+        $mform->freeze('text');
+        $mform->freeze('checkbox');
+    }
+}
+
+/**
+ * Used to test the behaviour of frozen elements in a group vs not in a group. See MDL-69496.
+ */
+class formslib_test_frozen_group_grouped_form extends moodleform {
+    /**
+     * Simple definition as above, but with both elements in group.
+     */
+    public function definition() {
+        $mform = $this->_form;
+        $group = array();
+        $group[] = $mform->createElement('text', 'text');
+        $group[] = $mform->createElement('advcheckbox', 'checkbox');
+        $mform->addGroup($group, 'group', '', null, false);
+        
+        $mform->setType('text', PARAM_TEXT);
+        $mform->setType('checkbox', PARAM_BOOL);
+        
+        $mform->freeze('group');
     }
 }
