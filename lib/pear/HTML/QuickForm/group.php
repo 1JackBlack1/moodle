@@ -95,6 +95,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
     public function __construct($elementName=null, $elementLabel=null, $elements=null, $separator=null, $appendName = true) {
         parent::__construct($elementName, $elementLabel);
         $this->_type = 'group';
+        $this->_persistantFreeze = true;
         if (isset($elements) && is_array($elements)) {
             $this->setElements($elements);
         }
@@ -461,6 +462,40 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
     } // end func accept
 
     // }}}
+    // {{{ _getDefaultValue()
+    
+    /**
+    * Used by exportValue() to get the default value when the element is frozen
+    *
+    * @param  mixed   the value found in exportValue()
+    * @param  array   array of default values()
+    * @param  bool    whether to return the value as associative array
+    * @access private
+    * @return mixed
+    */
+    function _getDefaultValue($key, $defaults, $assoc)
+    {
+        $name = $this->_elements[$key]->getName();
+        if (isset($defaults[$name])) {
+            return $this->_elements[$key]->_prepareValue($defaults[$name], $assoc);
+        } elseif(strpos($name, '[')){
+            $keys = str_replace(
+                array('\\', '\'', ']', '['), array('\\\\', '\\\'', '', "']['"),
+                $name
+            );
+            $path = explode("']['", $keys);
+            $default = HTML_QuickForm_utils::recursiveValue($defaults, $path);
+            if($default){
+                return $this->_elements[$key]->_prepareValue($default, $assoc);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    // }}}
     // {{{ exportValue()
 
    /**
@@ -471,6 +506,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
     {
         $value = null;
         foreach (array_keys($this->_elements) as $key) {
+            $defaults = $this->_mform->_defaultValues;
             $elementName = $this->_elements[$key]->getName();
             if ($this->_appendName) {
                 if (is_null($elementName)) {
@@ -481,7 +517,12 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
                     $this->_elements[$key]->setName($this->getName() . '[' . $elementName . ']');
                 }
             }
-            $v = $this->_elements[$key]->exportValue($submitValues, $assoc);
+            //Check if individual elements are frozen.
+            if ($this->_elements[$key]->isFrozen() && !$this->_elements[$key]->_persistantFreeze) {
+                $v = $this->_getDefaultValue($key, $defaults, $assoc);
+            } else {
+                $v = $this->_elements[$key]->exportValue($submitValues, $assoc);
+            }
             if ($this->_appendName) {
                 $this->_elements[$key]->setName($elementName);
             }

@@ -664,6 +664,18 @@ class core_formslib_testcase extends advanced_testcase {
         $groupeddata = $groupedform->get_submitted_data();
         
         $this->assertSame((array) $ungroupeddata, (array) $groupeddata);
+        
+        formslib_test_frozen_group_grouped_array_form::mock_submit(['group'=>$submittedvalues]);
+        $groupedarrayform = new formslib_test_frozen_group_grouped_array_form();
+        $groupedarraydata = $groupedarrayform->get_submitted_data()->group;
+        
+        $this->assertSame((array) $ungroupeddata, (array) $groupedarraydata);
+        
+        formslib_test_frozen_group_grouped_array_default_form::mock_submit(['group'=>$submittedvalues]);
+        $groupedarray2form = new formslib_test_frozen_group_grouped_array_default_form();
+        $groupedarray2data = $groupedarray2form->get_submitted_data()->group;
+        
+        $this->assertSame((array) $ungroupeddata, (array) $groupedarray2data);
     }
 }
 
@@ -1039,6 +1051,8 @@ class formslib_test_frozen_group_ungrouped_form extends moodleform {
         $mform->setType('text', PARAM_TEXT);
         $mform->setType('checkbox', PARAM_BOOL);
         
+        $mform->setDefault('text', 'DefaultText');
+        
         $mform->freeze('text');
         $mform->freeze('checkbox');
     }
@@ -1060,6 +1074,54 @@ class formslib_test_frozen_group_grouped_form extends moodleform {
         
         $mform->setType('text', PARAM_TEXT);
         $mform->setType('checkbox', PARAM_BOOL);
+        
+        $mform->setDefault('text', 'DefaultText');
+        
+        $mform->freeze('group');
+    }
+}
+
+/**
+ * Used to test the behaviour of frozen elements in a group vs not in a group. See MDL-69496.
+ */
+class formslib_test_frozen_group_grouped_array_form extends moodleform {
+    /**
+     * Simple definition as above, but with both elements in group.
+     */
+    public function definition() {
+        $mform = $this->_form;
+        $group = array();
+        $group[] = $mform->createElement('text', 'text');
+        $group[] = $mform->createElement('advcheckbox', 'checkbox');
+        $mform->addGroup($group, 'group');
+        
+        $mform->setType('group[text]', PARAM_TEXT);
+        $mform->setType('group[checkbox]', PARAM_BOOL);
+        
+        $mform->setDefault('group[text]', 'DefaultText');
+        
+        $mform->freeze('group');
+    }
+}
+
+/**
+ * Used to test the behaviour of frozen elements in a group vs not in a group. See MDL-69496.
+ */
+class formslib_test_frozen_group_grouped_array_default_form extends moodleform {
+    /**
+     * Simple definition as above, but with both elements in group.
+     */
+    public function definition() {
+        $mform = $this->_form;
+        $group = array();
+        $group[] = $mform->createElement('text', 'text');
+        $group[] = $mform->createElement('advcheckbox', 'checkbox');
+        $mform->addGroup($group, 'group');
+        
+        $mform->setType('group[text]', PARAM_TEXT);
+        $mform->setType('group[checkbox]', PARAM_BOOL);
+        
+        $mform->setDefault('group', array('text'=>'DefaultText'));
         
         $mform->freeze('group');
     }
