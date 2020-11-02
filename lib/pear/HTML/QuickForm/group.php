@@ -467,10 +467,9 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
     /**
     * Used by exportValue() to get the default value when the element is frozen
     *
-    * @param  mixed   the value found in exportValue()
+    * @param  key     The key to identify the element in the _elements array
     * @param  array   array of default values()
     * @param  bool    whether to return the value as associative array
-    * @access private
     * @return mixed
     */
     function _getDefaultValue($key, $defaults, $assoc)
