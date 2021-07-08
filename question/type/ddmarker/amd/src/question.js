@@ -142,6 +142,7 @@ define(['jquery', 'core/dragdrop', 'qtype_ddmarker/shapes', 'core/key_codes'], f
                     var dragInDrop = drag.clone();
                     dragInDrop.data('pagex', coords[i].x).data('pagey', coords[i].y);
                     thisQ.sendDragToDrop(dragInDrop, false);
+                    questionManager.addEventHandlersToMarker(dragInDrop);
                 }
                 thisQ.getDragClone(drag).addClass('active');
                 thisQ.cloneDragIfNeeded(drag);
@@ -705,12 +706,12 @@ define(['jquery', 'core/dragdrop', 'qtype_ddmarker/shapes', 'core/key_codes'], f
          * @param {Object[]} visibleDropZones data on any drop zones to draw as part of the feedback.
          */
         init: function(containerId, readOnly, visibleDropZones) {
-            questionManager.questions[containerId] =
-                new DragDropMarkersQuestion(containerId, readOnly, visibleDropZones);
             if (!questionManager.eventHandlersInitialised) {
                 questionManager.setupEventHandlers();
                 questionManager.eventHandlersInitialised = true;
             }
+            questionManager.questions[containerId] =
+                new DragDropMarkersQuestion(containerId, readOnly, visibleDropZones);
         },
 
         /**
