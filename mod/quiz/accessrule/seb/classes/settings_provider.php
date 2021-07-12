@@ -1024,11 +1024,13 @@ class settings_provider {
      * @return bool
      */
     public static function is_seb_settings_locked($quizid) : bool {
+        global $DB;
+
         if (empty($quizid)) {
             return false;
         }
 
-        return quiz_has_attempts($quizid);
+        return $DB->record_exists('quiz_attempts', array('quiz' => $quizid, 'preview' => 0, 'state' => 'inprogress'));
     }
 
     /**
