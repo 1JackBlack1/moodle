@@ -185,7 +185,7 @@ trait quizaccess_seb_test_helper_trait {
      * @param \stdClass $user A user to attempt the quiz.
      * @return  array
      */
-    protected function attempt_quiz($quiz, $user) {
+    protected function attempt_quiz($quiz, $user, $submit=false) {
         $this->setUser($user);
 
         $starttime = time();
@@ -211,7 +211,9 @@ trait quizaccess_seb_test_helper_trait {
 
         // Finish the attempt.
         $attemptobj = \quiz_attempt::create($attempt->id);
-        $attemptobj->process_finish($starttime, false);
+        if ($submit) {
+            $attemptobj->process_finish($starttime, false);
+        }
 
         $this->setUser();
 

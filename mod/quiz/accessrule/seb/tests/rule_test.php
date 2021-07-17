@@ -1081,7 +1081,7 @@ class quizaccess_seb_rule__testcase extends advanced_testcase {
         $this->quiz->seb_linkquitseb = "http://test.quit.link";
 
         $user = $this->getDataGenerator()->create_user();
-        $this->attempt_quiz($this->quiz, $user);
+        $this->attempt_quiz($this->quiz, $user, true);
         $this->setUser($user);
 
         // Set-up the button to be called.
@@ -1106,7 +1106,7 @@ class quizaccess_seb_rule__testcase extends advanced_testcase {
         $_SERVER['HTTP_USER_AGENT'] = 'SEB_TEST_SITE';
 
         $user = $this->getDataGenerator()->create_user();
-        $this->attempt_quiz($this->quiz, $user);
+        $this->attempt_quiz($this->quiz, $user, true);
 
         $description = $this->make_rule()->description();
         $this->assertCount(2, $description);
@@ -1204,7 +1204,7 @@ class quizaccess_seb_rule__testcase extends advanced_testcase {
 
         // Finish the quiz.
         $user = $this->getDataGenerator()->create_user();
-        $this->attempt_quiz($this->quiz, $user);
+        $this->attempt_quiz($this->quiz, $user, true);
         $this->setUser($user);
 
         // We will check if we show only fake blocks. Which means no other blocks on a page.

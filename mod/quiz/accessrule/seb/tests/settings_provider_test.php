@@ -771,7 +771,7 @@ class quizaccess_seb_settings_provider_testcase extends advanced_testcase {
         $this->context = context_module::instance($this->quiz->cmid);
 
         $user = $this->getDataGenerator()->create_user();
-        $this->attempt_quiz($this->quiz, $user);
+        $this->attempt_quiz($this->quiz, $user, false);
 
         $this->setAdminUser();
         $this->set_up_form_mocks();
@@ -808,7 +808,7 @@ class quizaccess_seb_settings_provider_testcase extends advanced_testcase {
         $settings->save();
 
         $user = $this->getDataGenerator()->create_user();
-        $this->attempt_quiz($this->quiz, $user);
+        $this->attempt_quiz($this->quiz, $user, false);
 
         $this->setAdminUser();
         $this->set_up_form_mocks();
@@ -1158,8 +1158,11 @@ class quizaccess_seb_settings_provider_testcase extends advanced_testcase {
 
         $this->assertFalse(settings_provider::is_seb_settings_locked($this->quiz->id));
 
-        $this->attempt_quiz($this->quiz, $user);
+        [$quizobj, $quba, $attemptobj] = $this->attempt_quiz($this->quiz, $user, false);
         $this->assertTrue(settings_provider::is_seb_settings_locked($this->quiz->id));
+        
+        $attemptobj->process_finish(time(), false);
+        $this->assertFalse(settings_provider::is_seb_settings_locked($this->quiz->id));
     }
 
     /**
